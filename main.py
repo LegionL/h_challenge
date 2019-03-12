@@ -47,11 +47,21 @@ def create_app(config=None):
         if app.companies[company_name] not in app.people_index:
             return jsonify({'company_name':company_name, 'index': app.companies[company_name], 'employees': None})
         employees = [app.people[e_id]['name'] for e_id in app.people_index[app.companies[company_name]]]
-
-
-
         return jsonify({'company_name':company_name, 'index':app.companies[company_name], 'employees': employees})
 
+    @app.route('/api/friends/<int:p1_id>/<int:p2_id>', methods = ['GET'])
+    def query_friends(p1_id, p2_id):
+        if p1_id == p2_id:
+            return jsonify({'msg': 'thats the same person'})
+        if p1_id not in app.people:
+            return jsonify({'msg': 'cannot find %s'.format(p1_id)})
+        if p2_id not in app.people:
+            return jsonify({'msg': 'cannot find %s'.format(p2_id)})
+
+        friends = list(set(app.people[p1_id]['friends']).intersection(set(app.people[p2_id]['friends'])))
+        res = [app.people[f]['name'] for f in friends if app.people[f]['has_died'] == False and app.people[f]['eyeColor'].lower() == 'brown']
+        return jsonify(res)
+ 
 
     return app
 

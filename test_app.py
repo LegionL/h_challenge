@@ -27,3 +27,8 @@ def test_query_company(client):
     res = client.get("/api/company/NETBOOK")
     res = json.loads(res.data)
     assert {'company_name': 'NETBOOK', 'employees': None, 'index': 0} == res
+
+def test_query_friend(client):
+    res = client.get("/api/friends/4/0")
+    res = json.loads(res.data) 
+    assert res == ['Decker Mckenzie']
