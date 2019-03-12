@@ -1,6 +1,6 @@
-import pytest
 import main
 import json
+import pytest
 
 @pytest.fixture
 def app():
@@ -30,11 +30,11 @@ def test_query_company(client):
 
 def test_query_friend(client):
     res = client.get("/api/friends/Carmella Lambert/Mindy Beasley")
-    res = json.loads(res.data) 
+    res = json.loads(res.data)
     assert res == ['Decker Mckenzie']
 
 def test_query_food(client):
     res = client.get("/api/food/Carmella Lambert")
-    res = json.loads(res.data) 
+    res = json.loads(res.data)
     assert res == {'age': 61, 'fruits': ['orange', 'apple', 'banana', 'strawberry'], 'username': 'Carmella Lambert',
                    'vegetables': []}
