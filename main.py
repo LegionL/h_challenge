@@ -12,6 +12,7 @@ def create_app(config=None):
     app.people = None
     app.company_people_index = {}
     app.people_name_index = {}
+    app.fruit = ['apple', 'banana', 'orange', 'strawberry']
     CORS(app)
 
     def load_json_file():
@@ -24,6 +25,7 @@ def create_app(config=None):
             people = {d['index']: {'name': d['name'], 'age': d['age'], 'address': d['address'],
                                    'phone': d['phone'], 'company_id': d['company_id'],
                                    'has_died': d['has_died'], 'eyeColor': d['eyeColor'], 
+                                   'favouriteFood': d['favouriteFood'],
                                    'friends': [fri['index'] for fri in d['friends']]} for d in data}
             app.people = people
         for k, v in app.people.items():
@@ -53,7 +55,6 @@ def create_app(config=None):
 
     @app.route('/api/friends/<p1_name>/<p2_name>', methods = ['GET'])
     def query_friends(p1_name, p2_name): 
-
         if p1_name == p2_name:
             return jsonify({'msg': 'thats the same person'})
         if p1_name not in app.people_name_index:
@@ -68,6 +69,21 @@ def create_app(config=None):
         res = [app.people[f]['name'] for f in friends if app.people[f]['has_died'] == False and app.people[f]['eyeColor'].lower() == 'brown']
         return jsonify(res)
  
+    @app.route('/api/food/<p_name>', methods = ['Get'])
+    def query_food(p_name):
+        if p_name not in app.people_name_index:
+            return jsonify({'msg': 'cannot find %s'.format(p1_name)})
+        pid = app.people_name_index[p_name]
+        food = app.people[pid]['favouriteFood']
+        fruits = []
+        vegetables = []
+        for f in food:
+            if f in app.fruit:
+                fruits.append(f)
+            else:
+                vegetables.append(f)
+        return jsonify({'username': app.people[pid]['name'], 'age': app.people[pid]['age'],
+                        'fruits': fruits, 'vegetables': vegetables})
 
     return app
 
