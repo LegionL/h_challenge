@@ -6,6 +6,19 @@ The government from Paranuara will provide you two json files (located at resour
 Unfortunately, the systems are not that evolved yet, thus you need to clean and organise the data before use.
 For example, instead of providing a list of fruits and vegetables their citizens like, they are providing a list of favourite food, and you will need to split that list (please, check below the options for fruits and vegetables).
 
+## Instructions
+Install dependencies
+
+`pip install -r requirements.txt`
+
+Tests
+
+`pytest -v`
+
+Run the project
+
+`python main.py`
+
 ## New Features
 Your API must provides these end points:
 - Given a company, the API needs to return all their employees. Provide the appropriate solution if the company does not have any employees.
