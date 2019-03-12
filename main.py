@@ -10,7 +10,8 @@ def create_app(config=None):
     app.config['people'] = 'resources/people.json'
     app.companies = None
     app.people = None
-    app.people_index = {}
+    app.company_people_index = {}
+    app.people_name_index = {}
     CORS(app)
 
     def load_json_file():
@@ -26,7 +27,8 @@ def create_app(config=None):
                                    'friends': [fri['index'] for fri in d['friends']]} for d in data}
             app.people = people
         for k, v in app.people.items():
-            app.people_index[v['company_id']] = app.people_index.get(v['company_id'], []) + [k]
+            app.company_people_index[v['company_id']] = app.company_people_index.get(v['company_id'], []) + [k]
+            app.people_name_index[v['name']] = k
 
 
     load_json_file()
@@ -44,19 +46,23 @@ def create_app(config=None):
     def query_company(company_name):
         if company_name not in app.companies:
             return jsonify({'company_name':company_name, 'index': 'not found', 'employees': None})
-        if app.companies[company_name] not in app.people_index:
+        if app.companies[company_name] not in app.company_people_index:
             return jsonify({'company_name':company_name, 'index': app.companies[company_name], 'employees': None})
-        employees = [app.people[e_id]['name'] for e_id in app.people_index[app.companies[company_name]]]
+        employees = [app.people[e_id]['name'] for e_id in app.company_people_index[app.companies[company_name]]]
         return jsonify({'company_name':company_name, 'index':app.companies[company_name], 'employees': employees})
 
-    @app.route('/api/friends/<int:p1_id>/<int:p2_id>', methods = ['GET'])
-    def query_friends(p1_id, p2_id):
-        if p1_id == p2_id:
+    @app.route('/api/friends/<p1_name>/<p2_name>', methods = ['GET'])
+    def query_friends(p1_name, p2_name): 
+
+        if p1_name == p2_name:
             return jsonify({'msg': 'thats the same person'})
-        if p1_id not in app.people:
-            return jsonify({'msg': 'cannot find %s'.format(p1_id)})
-        if p2_id not in app.people:
-            return jsonify({'msg': 'cannot find %s'.format(p2_id)})
+        if p1_name not in app.people_name_index:
+            return jsonify({'msg': 'cannot find %s'.format(p1_name)})
+        if p2_name not in app.people_name_index:
+            return jsonify({'msg': 'cannot find %s'.format(p2_name)})
+
+        p1_id = app.people_name_index[p1_name]
+        p2_id = app.people_name_index[p2_name]
 
         friends = list(set(app.people[p1_id]['friends']).intersection(set(app.people[p2_id]['friends'])))
         res = [app.people[f]['name'] for f in friends if app.people[f]['has_died'] == False and app.people[f]['eyeColor'].lower() == 'brown']
